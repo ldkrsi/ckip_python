@@ -1,0 +1,6 @@
+[Authentication]
+Username=username
+Password=password
+[Server]
+IP=140.109.19.104
+Port=1501
