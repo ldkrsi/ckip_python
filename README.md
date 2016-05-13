@@ -1,5 +1,7 @@
 # ckip_python
 中研院中文斷詞系統python版本用戶端程式(CKIP client in python)
+
+僅在Python2.7上實測過
 ## 事前準備
 1. 先去官網申請帳號密碼
     + 官網連結 [http://ckipsvr.iis.sinica.edu.tw](http://ckipsvr.iis.sinica.edu.tw/)
