@@ -12,12 +12,14 @@
 ## 使用方法
 
     from CKIP_client import ckip_client
-    text = "Facebook 是一個聯繫朋友、工作夥伴、同學或其他社交圈之間的社交工具。"
+    text1 = "Facebook 是一個聯繫朋友、工作夥伴、同學或其他社交圈之間的社交工具。"
+    text2 = u"Facebook 是一個聯繫朋友、工作夥伴、同學或其他社交圈之間的社交工具。"
     try:
         #指定輸出檔案
-        ckip_client(text,"output.txt")
+        ckip_client(text1,"output1.txt")
+        ckip_client(text2.encode('utf-8'),"output2.txt")
         #不指定輸出檔案
-        result, the_length = ckip_client(text)
+        result, the_length = ckip_client(text1)
     except:
         pass
 ckip_client如果斷詞成功會回傳兩個參數：斷詞結果(不換行), 該次傳送的字元數
