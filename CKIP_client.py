@@ -40,6 +40,11 @@ class parse_xml:
 
 def ckip_client(input_text,output_file=None):
 	input_text = input_text.replace('　',' ').strip()
+	input_text = input_text.replace('&', '&amp;')
+	input_text = input_text.replace('<', '&lt;')
+	input_text = input_text.replace('>', '&gt;')
+	input_text = input_text.replace('\'','&apos;')
+	input_text = input_text.replace('"', '&quot;')
 	text = my_format % (authentication_string, input_text)
 	if len(text.decode('utf-8')) >= 7900:
 		raise ValueError("Your input text is too long.")
