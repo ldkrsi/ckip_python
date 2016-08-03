@@ -1,6 +1,11 @@
-﻿import ConfigParser
-import socket
+﻿import socket
 import xml.parsers.expat
+import sys
+
+if sys.version_info >= (3, 0):
+	import configparser as ConfigParser
+else:
+	import ConfigParser
 
 
 my_format = "<?xml version=\"1.0\"?><wordsegmentation version=\"0.1\" charsetcode=\"utf-8\"><option showcategory=\"1\"/>%s<text>%s</text></wordsegmentation>"
@@ -18,7 +23,10 @@ class parse_xml:
 		self.core.EndElementHandler = self.end_element
 		self.core.CharacterDataHandler = self.char_data
 		self.pointer = None
-		self.core.Parse(input_xml_str.strip(),1)
+		if type(input_xml_str) is str:
+			self.core.Parse(input_xml_str.strip(),1)
+		else:
+			self.core.Parse(input_xml_str.encode('utf-8').strip(),1)
 	def start_element(self,name,attrs):
 		if name == "processstatus":
 			self.status_code = int(attrs['code'])
@@ -46,22 +54,33 @@ def ckip_client(input_text,output_file=None):
 	input_text = input_text.replace('\'','&apos;')
 	input_text = input_text.replace('"', '&quot;')
 	text = my_format % (authentication_string, input_text)
-	if len(text.decode('utf-8')) >= 7900:
+	if sys.version_info >= (3, 0) and len(text) >= 7900:
 		raise ValueError("Your input text is too long.")
-	downloaded = ''
+	elif sys.version_info < (3, 0) and len(text.decode('utf-8')) >= 7900:
+		raise ValueError("Your input text is too long.")
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.connect(connect_target)
-	sock.sendall(text)
-	while "</wordsegmentation>" not in downloaded:
+	try:
+		sock.sendall(text)
+		downloaded = ''
+		stop_word = "</wordsegmentation>"
+	except:
+		sock.sendall(text.encode('utf-8'))
+		downloaded = b''
+		stop_word = b"</wordsegmentation>"
+	while stop_word not in downloaded:
 		chunk = sock.recv(4096)
 		downloaded +=chunk
-	result = parse_xml(downloaded)
+	result = parse_xml(downloaded.decode('utf-8'))
 	if result.status_code == 0:
 		if output_file:
-			output = open(output_file,'w')
+			output = open(output_file,'wb')
 			output.write(result.result.encode('utf-8'))
 			output.close()
-		return result.result, len(text.decode('utf-8'))
+		try:
+			return result.result, len(text.decode('utf-8'))
+		except:
+			return result.result, len(text)
 	else:
 		class CKIPException(Exception):
 			pass
@@ -70,6 +89,5 @@ def ckip_client(input_text,output_file=None):
 
 
 if __name__ == "__main__":
-	#print config.get("Authentication","Username"), config.get("Authentication","Password")
 	text = "Facebook 是一個聯繫朋友、工作夥伴、同學或其他社交圈之間的社交工具。你可以利用Facebook 與朋友保持密切聯絡，無限量地上傳相片，分享轉貼連結及影片。"
 	ckip_client(text,"output.txt")
